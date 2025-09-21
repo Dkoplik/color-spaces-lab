@@ -1,5 +1,10 @@
 pub mod app;
-pub mod image_op;
 
-fn main() {
+fn main() -> eframe::Result {
+    let native_options = eframe::NativeOptions::default();
+    eframe::run_native(
+        "ColorsApp",
+        native_options,
+        Box::new(|cc| Ok(Box::new(app::ColorsApp::new(cc)))),
+    )
 }
