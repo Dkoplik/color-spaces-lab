@@ -10,7 +10,6 @@ fn rgb_to_grayscale1(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
     let b_f32 = b as f32;
     
     let y = (0.299 * r_f32 + 0.587 * g_f32 + 0.114 * b_f32) as u8;
-    
     (y, y, y)
 }
 
@@ -59,6 +58,16 @@ pub fn rgb_buffer_to_grayscale2(buf: &mut Vec<u8>) {
             buf[i + 2] = gray;
         }
     }
+}
+
+/// Функция для вычисления разности двух изображений
+pub fn compute_difference(buf1: &[u8], buf2: &[u8]) -> Vec<u8> {
+    let mut res = Vec::with_capacity(buf1.len());    
+    for i in 0..buf1.len() {
+        let diff = (buf1[i] as i16 - buf2[i] as i16).abs() as u8;
+        res.push(diff);
+    }
+    res
 }
 
 pub fn rgb_buffer_to_red_channel(buf: &mut Vec<u8>) {
