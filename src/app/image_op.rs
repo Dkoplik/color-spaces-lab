@@ -5,8 +5,13 @@
 /// 
 /// Результат тоже в rgb формате, но должнен уже представлять собой оттенок серого.
 fn rgb_to_grayscale1(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
-    // TODO
-    return (0, 0, 0);
+    let r_f32 = r as f32;
+    let g_f32 = g as f32;
+    let b_f32 = b as f32;
+    
+    let y = (0.299 * r_f32 + 0.587 * g_f32 + 0.114 * b_f32) as u8;
+    
+    (y, y, y)
 }
 
 /// Второй вариант преобразования rbg в оттенки серого.
@@ -16,8 +21,12 @@ fn rgb_to_grayscale1(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
 /// 
 /// Результат тоже в rgb формате, но должнен уже представлять собой оттенок серого.
 fn rgb_to_grayscale2(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
-    // TODO
-    return (0, 0, 0);
+    let r_f32 = r as f32;
+    let g_f32 = g as f32;
+    let b_f32 = b as f32;
+
+    let y = (0.2126 * r_f32 + 0.7152 * g_f32 + 0.0722 * b_f32) as u8;
+    (y, y, y)
 }
 
 /// Первый вариант преобразования изображения в оттенки серого.
@@ -25,7 +34,15 @@ fn rgb_to_grayscale2(r: u8, g: u8, b: u8) -> (u8, u8, u8) {
 /// 
 /// Результат должен быть записан в сам же buf.
 pub fn rgb_buffer_to_grayscale1(buf: &mut Vec<u8>) {
-    // TODO
+    for i in (0..buf.len()).step_by(3) {
+        if i + 2 < buf.len() {
+            let (r, g, b) = (buf[i], buf[i + 1], buf[i + 2]);
+            let (gray, _, _) = rgb_to_grayscale1(r, g, b);
+            buf[i] = gray;
+            buf[i + 1] = gray;
+            buf[i + 2] = gray;
+        }
+    }
 }
 
 /// Второй вариант преобразования изображения в оттенки серого.
@@ -33,7 +50,15 @@ pub fn rgb_buffer_to_grayscale1(buf: &mut Vec<u8>) {
 /// 
 /// Результат должен быть записан в сам же buf.
 pub fn rgb_buffer_to_grayscale2(buf: &mut Vec<u8>) {
-    // TODO
+    for i in (0..buf.len()).step_by(3) {
+        if i + 2 < buf.len() {
+            let (r, g, b) = (buf[i], buf[i + 1], buf[i + 2]);
+            let (gray, _, _) = rgb_to_grayscale2(r, g, b);
+            buf[i] = gray;
+            buf[i + 1] = gray;
+            buf[i + 2] = gray;
+        }
+    }
 }
 
 pub fn rgb_buffer_to_red_channel(buf: &mut Vec<u8>) {
