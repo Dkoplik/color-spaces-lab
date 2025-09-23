@@ -121,9 +121,7 @@ pub fn rgb_buffer_to_blue_channel(buf: &mut Vec<u8>) {
 /// b - синяя составляющая [0, 255];
 ///
 /// На выходе должен быть HSV: H [0, 360], S [0, 100], V [0, 100].
-fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
-    //println!("rgb_to_hsv {} {} {}", r, g, b);
-
+pub fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
     let r_f = r as f32 / 255.0;
     let g_f = g as f32 / 255.0;
     let b_f = b as f32 / 255.0;
@@ -165,8 +163,7 @@ fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
 /// v - value (brightness) [0, 100];
 ///
 /// На выходе должен быть RGB со значениями от 0 до 255.
-fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
-    // println!("hsv_to_rgb {} {} {}", h, s, v);
+pub fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
     let s_f = s as f32 / 100.0;
     let v_f = v as f32 / 100.0;
 

@@ -234,12 +234,20 @@ impl ColorsApp {
 
             if let Some(orig_image) = &self.loaded_image {
                 let mut buf = orig_image.clone().into_raw();
-                image_op::add_hsv_to_buffer(
-                    &mut buf,
-                    self.hue,
-                    self.saturation,
-                    self.value,
-                );
+                // Test rgb -> hsv -> rgb
+                // for i in (0..buf.len()).step_by(3) {
+                //     let mut r = buf[i];
+                //     let mut g = buf[i + 1];
+                //     let mut b = buf[i + 2];
+
+                //     let (h, s, v) = image_op::rgb_to_hsv(r, g, b);
+                //     (r, g, b) = image_op::hsv_to_rgb(h, s, v);
+
+                //     buf[i] = r;
+                //     buf[i + 1] = g;
+                //     buf[i + 2] = b;
+                // }
+                image_op::add_hsv_to_buffer(&mut buf, self.hue, self.saturation, self.value);
                 self.cur_image = Some(buf);
                 self.update_texture(ctx);
             }
@@ -292,6 +300,16 @@ impl eframe::App for ColorsApp {
 
         // Image view
         egui::CentralPanel::default().show(ctx, |ui| {
+            // Bottom histogram
+            egui::TopBottomPanel::bottom("bottom_panel")
+                .resizable(true)
+                .default_height(500.0)
+                .height_range(200.0..=500.0)
+                .show_inside(ui, |ui| {
+                    let size = egui::vec2(ui.available_width(), ui.available_height());
+                    self.histogram.show(ui, Some(size));
+                });
+
             // Side buttons
             egui::SidePanel::left("left_panel")
                 .resizable(false)
@@ -304,10 +322,6 @@ impl eframe::App for ColorsApp {
             // Image display
             if let Some(texture) = &self.cur_image_texture {
                 ui.add(egui::Image::new(texture));
-
-                // histogram
-                self.histogram
-                    .show(ui, Some(egui::vec2(ui.available_width(), 200.0)));
             } else {
                 ui.label("Необходимо загрузить картинку.");
             }
