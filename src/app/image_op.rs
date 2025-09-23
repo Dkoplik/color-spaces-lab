@@ -62,9 +62,27 @@ pub fn rgb_buffer_to_grayscale2(buf: &mut Vec<u8>) {
 
 /// Функция для вычисления разности двух изображений
 pub fn compute_difference(buf1: &[u8], buf2: &[u8]) -> Vec<u8> {
+    if buf1.len() != buf2.len() {
+        panic!("Картинки разных размеров");
+    }
+
     let mut res = Vec::with_capacity(buf1.len());    
     for i in 0..buf1.len() {
         let diff = (buf1[i] as i16 - buf2[i] as i16).abs() as u8;
+        res.push(diff);
+    }
+    res
+}
+
+/// Функция для вычисления разности двух изображений
+pub fn compute_difference_neg(buf1: &[u8], buf2: &[u8]) -> Vec<u8> {
+    if buf1.len() != buf2.len() {
+        panic!("Картинки разных размеров");
+    }
+
+    let mut res = Vec::with_capacity(buf1.len());    
+    for i in 0..buf1.len() {
+        let diff = 255 - (buf1[i] as i16 - buf2[i] as i16).abs() as u8;
         res.push(diff);
     }
     res

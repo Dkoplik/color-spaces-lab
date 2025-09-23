@@ -2,6 +2,7 @@ use eframe::egui;
 use image::RgbImage;
 
 pub mod image_op;
+pub mod hist;
 
 #[derive(Default)]
 enum Task {
@@ -19,6 +20,7 @@ pub struct ColorsApp {
     cur_image_texture: Option<egui::TextureHandle>,
     image_path: Option<std::path::PathBuf>,
     task: Task,
+    histogram: hist::RGBHistogram,
 }
 
 impl ColorsApp {
@@ -39,12 +41,13 @@ impl ColorsApp {
                 self.cur_image = Some(img.to_rgb8().into_raw());
                 self.cur_image_size = Some((img.width() as usize, img.height() as usize));
                 self.image_path = Some(path);
+                self.histogram.update_data(self.cur_image.clone().unwrap());
                 self.update_texture(ctx);
             }
         }
     }
 
-    /// Обновить выводимую картинку
+    /// Обновить выводимую картинку и гистограмму
     fn update_texture(&mut self, ctx: &egui::Context) {
         if let Some(raw_data) = &self.cur_image {
             let size = [
@@ -57,6 +60,8 @@ impl ColorsApp {
                 Default::default(),
             );
             self.cur_image_texture = Some(texture);
+
+            self.histogram.update_data(self.cur_image.clone().unwrap());
         }
     }
 
@@ -113,6 +118,7 @@ impl ColorsApp {
             // Оттенки серого 1-ым методом
             if ui.button("Grayscale1").clicked() {
                 if let Some(orig_image) = &self.loaded_image {
+                    // картинка
                     let mut buf = orig_image.clone().into_raw();
                     image_op::rgb_buffer_to_grayscale1(&mut buf);
                     self.cur_image = Some(buf);
@@ -125,6 +131,34 @@ impl ColorsApp {
                 if let Some(orig_image) = &self.loaded_image {
                     let mut buf = orig_image.clone().into_raw();
                     image_op::rgb_buffer_to_grayscale2(&mut buf);
+                    self.cur_image = Some(buf);
+                    self.update_texture(ctx);
+                }
+            }
+
+            // Разница между 2-мя методами
+            if ui.button("diff").clicked() {
+                if let Some(orig_image) = &self.loaded_image {
+                    let mut buf_1 = orig_image.clone().into_raw();
+                    image_op::rgb_buffer_to_grayscale1(&mut buf_1);
+                    let mut buf_2 = orig_image.clone().into_raw();
+                    image_op::rgb_buffer_to_grayscale2(&mut buf_2);
+
+                    let buf = image_op::compute_difference(&buf_1, &buf_2);
+                    self.cur_image = Some(buf);
+                    self.update_texture(ctx);
+                }
+            }
+
+            // Разница между 2-мя методами в негативе
+            if ui.button("diff neg").clicked() {
+                if let Some(orig_image) = &self.loaded_image {
+                    let mut buf_1 = orig_image.clone().into_raw();
+                    image_op::rgb_buffer_to_grayscale1(&mut buf_1);
+                    let mut buf_2 = orig_image.clone().into_raw();
+                    image_op::rgb_buffer_to_grayscale2(&mut buf_2);
+
+                    let buf = image_op::compute_difference_neg(&buf_1, &buf_2);
                     self.cur_image = Some(buf);
                     self.update_texture(ctx);
                 }
@@ -233,6 +267,9 @@ impl eframe::App for ColorsApp {
             // Image display
             if let Some(texture) = &self.cur_image_texture {
                 ui.add(egui::Image::new(texture));
+
+                // histogram
+                self.histogram.show(ui, Some(egui::vec2(ui.available_width(), 200.0)));
             } else {
                 ui.label("Необходимо загрузить картинку.");
             }
