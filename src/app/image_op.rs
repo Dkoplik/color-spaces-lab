@@ -173,13 +173,15 @@ fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
     let q = (v_f * (1.0 - f * s_f) * 255.0).round() as u8;
     let t = (v_f * (1.0 - (1.0 - f) * s_f) * 255.0).round() as u8;
 
+    let v_norm = (v_f * 255.0) as u8;
+
     let (r_prime, g_prime, b_prime) = match hi {
-        0 => (v, t, p),
-        1 => (q, v, p),
-        2 => (p, v, t),
-        3 => (p, q, v),
-        4 => (t, p, v),
-        5 => (v, p, q),
+        0 => (v_norm, t, p),
+        1 => (q, v_norm, p),
+        2 => (p, v_norm, t),
+        3 => (p, q, v_norm),
+        4 => (t, p, v_norm),
+        5 => (v_norm, p, q),
         _ => (0, 0, 0),
     };
 
