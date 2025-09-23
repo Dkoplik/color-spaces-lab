@@ -1,8 +1,8 @@
 use eframe::egui;
 use image::RgbImage;
 
-pub mod image_op;
 pub mod hist;
+pub mod image_op;
 
 #[derive(Default)]
 enum Task {
@@ -21,6 +21,10 @@ pub struct ColorsApp {
     image_path: Option<std::path::PathBuf>,
     task: Task,
     histogram: hist::RGBHistogram,
+    // HSV
+    hue: u16,
+    saturation: u8,
+    value: u8,
 }
 
 impl ColorsApp {
@@ -208,10 +212,43 @@ impl ColorsApp {
             }
         });
     }
+
+    /// UI левой панели для HSV задания
+    fn left_buttons_hsv(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+        ui.vertical(|ui| {
+            // Вывести оригинальную картинку
+            if ui.button("Original").clicked() {
+                if let Some(orig_image) = &self.loaded_image {
+                    self.cur_image = Some(orig_image.clone().into_raw());
+                    self.update_texture(ctx);
+                }
+                self.hue = 0;
+                self.saturation = 0;
+                self.value = 0;
+            }
+
+            // HSV sliders
+            ui.add(egui::Slider::new(&mut self.hue, 0..=360 as u16).text("hue"));
+            ui.add(egui::Slider::new(&mut self.saturation, 0..=100 as u8).text("saturation"));
+            ui.add(egui::Slider::new(&mut self.value, 0..=100 as u8).text("value"));
+
+            if let Some(orig_image) = &self.loaded_image {
+                let mut buf = orig_image.clone().into_raw();
+                image_op::add_hsv_to_buffer(
+                    &mut buf,
+                    self.hue,
+                    self.saturation,
+                    self.value,
+                );
+                self.cur_image = Some(buf);
+                self.update_texture(ctx);
+            }
+        });
+    }
 }
 
 impl eframe::App for ColorsApp {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Top menu buttons
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             egui::MenuBar::default().ui(ui, |ui| {
@@ -261,7 +298,7 @@ impl eframe::App for ColorsApp {
                 .show_inside(ui, |ui| match self.task {
                     Task::Grayscale => self.left_buttons_grayscale(ctx, ui),
                     Task::RGBChannels => self.left_buttons_rgb_channels(ctx, ui),
-                    Task::HSV => panic!("Надо сделать левую панель для HSV"), // TODO
+                    Task::HSV => self.left_buttons_hsv(ctx, ui),
                 });
 
             // Image display
@@ -269,7 +306,8 @@ impl eframe::App for ColorsApp {
                 ui.add(egui::Image::new(texture));
 
                 // histogram
-                self.histogram.show(ui, Some(egui::vec2(ui.available_width(), 200.0)));
+                self.histogram
+                    .show(ui, Some(egui::vec2(ui.available_width(), 200.0)));
             } else {
                 ui.label("Необходимо загрузить картинку.");
             }
