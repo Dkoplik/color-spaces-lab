@@ -122,6 +122,8 @@ pub fn rgb_buffer_to_blue_channel(buf: &mut Vec<u8>) {
 ///
 /// На выходе должен быть HSV: H [0, 360], S [0, 100], V [0, 100].
 fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
+    //println!("rgb_to_hsv {} {} {}", r, g, b);
+
     let r_f = r as f32 / 255.0;
     let g_f = g as f32 / 255.0;
     let b_f = b as f32 / 255.0;
@@ -147,11 +149,13 @@ fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
             60.0 * ((g_f - b_f) / delta) + 360.0
         }
     } else if max == g_f {
-        60.0 * (((b_f - r_f) / delta) + 120.0)
+        60.0 * ((b_f - r_f) / delta) + 120.0
     } else {
-        60.0 * (((r_f - g_f) / delta) + 240.0)
+        60.0 * ((r_f - g_f) / delta) + 240.0
     };
 
+    // println!("rgb_to_hsv {} {} {}", h.round() as u16, s.round() as u8, v.round() as u8);
+    
     (h.round() as u16, s.round() as u8, v.round() as u8)
 }
 
@@ -162,6 +166,7 @@ fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (u16, u8, u8) {
 ///
 /// На выходе должен быть RGB со значениями от 0 до 255.
 fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
+    // println!("hsv_to_rgb {} {} {}", h, s, v);
     let s_f = s as f32 / 100.0;
     let v_f = v as f32 / 100.0;
 
@@ -184,6 +189,8 @@ fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
         5 => (v_norm, p, q),
         _ => (0, 0, 0),
     };
+
+    // println!("hsv_to_rgb {} {} {}", r_prime, g_prime, b_prime);
 
     (r_prime, g_prime, b_prime)
 }
