@@ -199,7 +199,7 @@ pub fn hsv_to_rgb(h: u16, s: u8, v: u8) -> (u8, u8, u8) {
 /// v - value (brightness) [0, 100];
 ///
 /// Результат должен быть записан в сам же buf в rgb формате.
-pub fn add_hsv_to_buffer(buf: &mut Vec<u8>, h_add: u16, s_add: u8, v_add: u8) {
+pub fn add_hsv_to_buffer(buf: &mut Vec<u8>, h_add: i32, s_add: i16, v_add: i16) {
     for i in (0..buf.len()).step_by(3) {
         if i + 2 < buf.len() {
             let r = buf[i];
@@ -208,9 +208,9 @@ pub fn add_hsv_to_buffer(buf: &mut Vec<u8>, h_add: u16, s_add: u8, v_add: u8) {
 
             let (mut h, mut s, mut v) = rgb_to_hsv(r, g, b);
 
-            h = ((h as u32 + h_add as u32) % 360) as u16;
-            s = (s as u16 + s_add as u16).min(100) as u8;
-            v = (v as u16 + v_add as u16).min(100) as u8;
+            h = ((h as i32 + h_add as i32) % 360).abs() as u16;
+            s = (s as i16 + s_add as i16).clamp(0, 100) as u8;
+            v = (v as i16 + v_add as i16).clamp(0, 100) as u8;
 
             let (r_new, g_new, b_new) = hsv_to_rgb(h, s, v);
 

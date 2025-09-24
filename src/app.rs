@@ -22,9 +22,9 @@ pub struct ColorsApp {
     task: Task,
     histogram: hist::RGBHistogram,
     // HSV
-    hue: u16,
-    saturation: u8,
-    value: u8,
+    hue: i32,
+    saturation: i16,
+    value: i16,
 }
 
 impl ColorsApp {
@@ -228,9 +228,9 @@ impl ColorsApp {
             }
 
             // HSV sliders
-            ui.add(egui::Slider::new(&mut self.hue, 0..=360 as u16).text("hue"));
-            ui.add(egui::Slider::new(&mut self.saturation, 0..=100 as u8).text("saturation"));
-            ui.add(egui::Slider::new(&mut self.value, 0..=100 as u8).text("value"));
+            ui.add(egui::Slider::new(&mut self.hue, 0..=360 as i32).text("hue"));
+            ui.add(egui::Slider::new(&mut self.saturation, -100..=100 as i16).text("saturation"));
+            ui.add(egui::Slider::new(&mut self.value, -100..=100 as i16).text("value"));
 
             if let Some(orig_image) = &self.loaded_image {
                 let mut buf = orig_image.clone().into_raw();
@@ -312,6 +312,7 @@ impl eframe::App for ColorsApp {
 
             // Side buttons
             egui::SidePanel::left("left_panel")
+                .exact_width(200.0)
                 .resizable(false)
                 .show_inside(ui, |ui| match self.task {
                     Task::Grayscale => self.left_buttons_grayscale(ctx, ui),
